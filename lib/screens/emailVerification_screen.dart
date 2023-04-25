@@ -39,7 +39,6 @@ class _MainScreenState extends State<emailVerification_screen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SizedBox(
-        width: double.infinity,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,

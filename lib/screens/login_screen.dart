@@ -24,8 +24,14 @@ class _LoginPaeState extends State<login_screen> {
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery
+        .of(context)
+        .size
+        .width;
+    double height = MediaQuery
+        .of(context)
+        .size
+        .height;
 
     return Scaffold(
       body: Column(
@@ -39,7 +45,7 @@ class _LoginPaeState extends State<login_screen> {
             child: Text("  Lets Sign you in",
                 style: TextStyle(
                   fontSize: 35.05,
-                  color: Color(0xFFD688DD),
+                  color: Color(0xFFD688FF),
                   fontWeight: FontWeight.bold,
                 )),
           ),
@@ -59,9 +65,9 @@ class _LoginPaeState extends State<login_screen> {
               textInputAction: TextInputAction.next,
               cursorColor: const Color.fromRGBO(246, 121, 82, 1),
               decoration: InputDecoration(
-                prefixIcon: Icon(Icons.email, color: Color(0xFFD688DD)),
+                prefixIcon: Icon(Icons.email, color: Color(0xFFB400FF)),
                 border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
+                OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
                 hintText: "Email ,phone & username",
               ),
             ),
@@ -75,9 +81,9 @@ class _LoginPaeState extends State<login_screen> {
               obscureText: true,
               cursorColor: const Color.fromRGBO(246, 121, 82, 1),
               decoration: InputDecoration(
-                prefixIcon: Icon(Icons.password, color: Color(0xFFD688DD)),
+                prefixIcon: Icon(Icons.password, color: Color(0xFFB400FF)),
                 border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
+                OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
                 hintText: "Password",
               ),
             ),
@@ -111,7 +117,7 @@ class _LoginPaeState extends State<login_screen> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFDD88CF),
+                backgroundColor: const Color(0xFFB400FF),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),
@@ -122,20 +128,23 @@ class _LoginPaeState extends State<login_screen> {
                   builder: (context) {
                     return const Center(
                       child: CircularProgressIndicator(
-                        color: Color(0xFFDD88CF),
+                        color: Color(0xFFB400FF),
                       ),
                     );
                   });
               try {
-                await FirebaseAuth.instance.signInWithEmailAndPassword(
-                  email: emailController.text.trim(),
-                  password: passwordController.text.trim(),
-                );
+                final user = FirebaseAuth.instance.currentUser;
+                if (user == user?.emailVerified) {
+                  await FirebaseAuth.instance.signInWithEmailAndPassword(
+                    email: emailController.text.trim(),
+                    password: passwordController.text.trim(),
+                  );
 
-                Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (builder) {
-                  return Example();
-                }));
+                  Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (builder) {
+                    return Example();
+                  }));
+                }
               } catch (e) {
                 showDialog(
                   context: context,
@@ -143,9 +152,9 @@ class _LoginPaeState extends State<login_screen> {
                     return const AlertDialog(
                       title: Text('Wrong Credentials'),
                       titleTextStyle:
-                          TextStyle(color: Colors.deepOrange, fontSize: 18),
+                      TextStyle(color: Colors.deepOrange, fontSize: 18),
                       content: Text(
-                          'Email and password are incorrect or user not created'),
+                          'Email and password are incorrect or user not created or not verified'),
                     );
                   },
                 );
@@ -172,7 +181,7 @@ class _LoginPaeState extends State<login_screen> {
                 child: const Text(
                   "Register now",
                   style: TextStyle(
-                    color: Color(0xFFD688DD),
+                    color: Color(0xFFB400FF),
                     fontWeight: FontWeight.bold,
                   ),
                 ),

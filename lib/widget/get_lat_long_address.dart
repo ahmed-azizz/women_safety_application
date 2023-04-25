@@ -1,11 +1,31 @@
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:permission_handler/permission_handler.dart';
 
 class get_lat_long_address extends StatefulWidget {
   @override
   _get_lat_long_addressState createState() => _get_lat_long_addressState();
+}
+
+class GeolocatorService {
+  Future<Position?> determinePosition() async {
+    LocationPermission permission;
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.deniedForever) {
+        return Future.error('Location Not Available');
+      }
+    } else {
+      throw Exception('Error');
+    }
+    return await Geolocator.getCurrentPosition();
+    print("sd");
+  }
 }
 
 class _get_lat_long_addressState extends State<get_lat_long_address> {
@@ -13,7 +33,21 @@ class _get_lat_long_addressState extends State<get_lat_long_address> {
   bool _updatingLocation = false;
 
   void _startLocationUpdates() async {
-    // Set the updatingLocation flag to true to indicate that location updates are in progress
+    bool serviceEnable = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnable) {
+      return Future.error("location services are disabled");
+    }
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error("location permissions are denide");
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error("location permission denide");
+    }
     setState(() {
       _updatingLocation = true;
     });
@@ -23,6 +57,7 @@ class _get_lat_long_addressState extends State<get_lat_long_address> {
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
+      print(position.latitude);
 
       // Send the location to the admin
       sendLocationToAdmin(position);
@@ -32,66 +67,70 @@ class _get_lat_long_addressState extends State<get_lat_long_address> {
     }
   }
 
-  void _stopLocationUpdates() {
+  Future<void> _stopLocationUpdates() async {
     // Set the updatingLocation flag to false to indicate that location updates should stop
+
+    // var collection = FirebaseFirestore.instance.collection('locations');
+    // var snapshots = await collection.get();
+    // for (var doc in snapshots.docs) {
+    //   await doc.reference.delete();
+    // }
+
     setState(() {
       _updatingLocation = false;
     });
   }
 
   void sendLocationToAdmin(Position position) async {
-    // Create a JSON payload containing the latitude and longitude
-    Map<String, dynamic> payload = {
-      "latitude": position.latitude,
-      "longitude": position.longitude,
-    };
-
-    // Send the payload to the admin using HTTP POST
-    http.Response response = await http.post(
-      Uri.parse("https://example.com/send-location"),
-      body: jsonEncode(payload),
-      headers: {"Content-Type": "application/json"},
-    );
-
-    // Check the response status code
-    if (response.statusCode == 200) {
-      print("Location sent successfully");
-    } else {
-      print("Error sending location: ${response.statusCode}");
-    }
+    final User? user = FirebaseAuth.instance.currentUser;
+    final String? uid = user?.uid;
+    await FirebaseFirestore.instance.collection('locations').doc(uid).set({
+      'latitude': position.latitude,
+      'longitude': position.longitude,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Location Example'),
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                'Latitude: ${currentPosition?.latitude ?? '-'}',
+    return Scaffold(
+      body: Column(children: <Widget>[
+        _updatingLocation
+            ? SizedBox(
+                height: 100,
+                width: 200,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purple,
+                      elevation: 3,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
+                      padding: EdgeInsets.all(20)),
+                  onPressed: _stopLocationUpdates,
+                  child: Text(
+                    'Stop SOS',
+                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              )
+            : SizedBox(
+                height: 100,
+                width: 200,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purple,
+                      elevation: 3,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
+                      padding: EdgeInsets.all(20)),
+                  onPressed: _startLocationUpdates,
+                  child: Text(
+                    'Get help',
+                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                  ),
+                ),
               ),
-              Text(
-                'Longitude: ${currentPosition?.longitude ?? '-'}',
-              ),
-              SizedBox(height: 20),
-              _updatingLocation
-                  ? ElevatedButton(
-                      onPressed: _stopLocationUpdates,
-                      child: Text('Stop Location Updates'),
-                    )
-                  : ElevatedButton(
-                      onPressed: _startLocationUpdates,
-                      child: Text('Start Location Updates'),
-                    ),
-            ],
-          ),
-        ),
-      ),
+      ]),
     );
   }
 }

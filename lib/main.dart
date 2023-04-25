@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:quick_actions/quick_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:women_safety_final_project/screens/help_screen.dart';
 import 'package:women_safety_final_project/screens/login_screen.dart';
@@ -17,14 +18,25 @@ void main() async {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  MyApp({Key? key}) : super(key: key);
 
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
+  final quickActions = QuickActions();
+
   @override
+  void initState() {
+    super.initState();
+    quickActions.setShortcutItems([
+      ShortcutItem(type: 'help', localizedTitle: 'SOS'),
+      ShortcutItem(type: 'event', localizedTitle: 'Home screen'),
+      ShortcutItem(type: 'statistics', localizedTitle: 'Statistics screen'),
+    ]);
+  }
+
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -43,7 +55,7 @@ class _MyAppState extends State<MyApp> {
             }
           } else if (snapshot.hasError) {
             return const Center(
-              child: Text('Error Occured'),
+              child: Text('Error Occurred'),
             );
           }
           return Text('');

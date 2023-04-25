@@ -5,6 +5,8 @@ import 'package:women_safety_final_project/screens/login_screen.dart';
 import 'package:women_safety_final_project/screens/signup_screen.dart';
 import 'package:women_safety_final_project/screens/onBoard_screen.dart';
 
+import 'main_screen.dart';
+
 class OnboardScreen extends StatelessWidget {
   final PageController _pageController = PageController();
 
@@ -22,7 +24,7 @@ class OnboardScreen extends StatelessWidget {
       } else {
         Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) {
-          return login_screen();
+          return Example();
         }));
       }
     }
@@ -58,7 +60,7 @@ class OnboardScreen extends StatelessWidget {
           },
           child: const Text(
             "Skip",
-            style: TextStyle(color: Colors.black),
+            style: TextStyle(color: Colors.white),
           ),
         ),
         nextButton: OnBoardConsumer(
@@ -91,7 +93,7 @@ class OnboardScreen extends StatelessWidget {
 
 final List<OnBoardModel> onBoardData = [
   const OnBoardModel(
-    title: "women violence prevention",
+    title: "Personal safety application",
     description: "An application to get help whenever and wherever",
     imgUrl: "assets/Group 6922.png",
   ),

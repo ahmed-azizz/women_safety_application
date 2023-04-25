@@ -60,16 +60,13 @@ class forgetPassword_screen extends StatelessWidget {
                     );
                   });
 
-              try {
-                await FirebaseAuth.instance
-                    .sendPasswordResetEmail(email: emailController.text.trim());
-                showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                          title: Text('Reset email successfully sent'));
-                    });
-              } on FirebaseAuthException catch (e) {
+              final email = emailController.text.trim();
+              final userSnapshot = await FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(email)
+                  .get();
+
+              if (!userSnapshot.exists) {
                 showDialog(
                   context: context,
                   builder: (context) {
@@ -80,10 +77,38 @@ class forgetPassword_screen extends StatelessWidget {
                     );
                   },
                 );
+                return;
+              }
+
+              try {
+                await FirebaseAuth.instance
+                    .sendPasswordResetEmail(email: email);
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: Text('Reset email successfully sent'),
+                    );
+                  },
+                );
+              } on FirebaseAuthException catch (e) {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return const AlertDialog(
+                      titleTextStyle:
+                          TextStyle(color: Color(0xFFDD88CF), fontSize: 18),
+                      content: Text(
+                          'An error occurred while sending the reset email'),
+                    );
+                  },
+                );
               }
             },
-            child: const Text('Reset',
-                style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Reset',
+              style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),

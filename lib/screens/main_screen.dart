@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:women_safety_final_project/screens/help_screen.dart';
 import 'package:women_safety_final_project/screens/statistics_screen.dart';
+import '../widget/get_lat_long_address.dart';
 import 'PersonalScreen.dart';
 import 'home_page.dart';
 import 'login_screen.dart';
+import 'package:women_safety_final_project/screens/onBoard_screen.dart';
 
 class Example extends StatefulWidget {
   @override
@@ -28,12 +30,29 @@ class _ExampleState extends State<Example> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-      ),
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
+      // appBar: AppBar(
+      //   leading: Icon(Icons.ice_skating, color: Colors.purple),
+      //   elevation: 0,
+      //   backgroundColor: Colors.purple,
+      //   title: StreamBuilder(
+      //     stream: FirebaseFirestore.instance
+      //         .collection('users')
+      //         .where('email',
+      //             isEqualTo: FirebaseAuth.instance.currentUser?.email)
+      //         .snapshots(),
+      //     builder: (context, snapshot) {
+      //       if (snapshot.connectionState == ConnectionState.waiting) {
+      //         return Text('User');
+      //       } else {
+      //         return Text(snapshot.data!.docs[0]['name']);
+      //       }
+      //     },
+      //   ),
+      // ),
+      body: SafeArea(
+        child: Center(
+          child: _widgetOptions.elementAt(_selectedIndex),
+        ),
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(

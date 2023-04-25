@@ -12,24 +12,12 @@ class NewsWidget extends StatefulWidget {
 class _NewsWidgetState extends State<NewsWidget> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: StreamBuilder(
+    return Scaffold(
+      body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('news').snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return CircularProgressIndicator();
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
           }
           return ListView.builder(
             itemCount: snapshot.data?.docs.length,
